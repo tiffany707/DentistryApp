@@ -10,6 +10,21 @@ const AIMatchResultSchema = new Schema(
   { _id: false }
 );
 
+const GeoPointSchema = new Schema(
+  {
+    type: { type: String, enum: ['Point'], default: 'Point' },
+    coordinates: {
+      type: [Number], // [lng, lat]
+      required: true,
+      validate: {
+        validator: (val) => val.length === 2,
+        message: 'coordinates must be [longitude, latitude]',
+      },
+    },
+  },
+  { _id: false }
+);
+
 const ShiftSchema = new Schema(
   {
     clinicId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
@@ -17,6 +32,7 @@ const ShiftSchema = new Schema(
     startTime: { type: String, required: true },
     endTime: { type: String, required: true },
     skillsRequired: { type: [String], default: [] },
+    location: { type: GeoPointSchema, required: true },
     status: {
       type: String,
       enum: ['open', 'matched', 'confirmed', 'completed', 'cancelled'],
@@ -33,5 +49,6 @@ const ShiftSchema = new Schema(
 );
 
 ShiftSchema.index({ status: 1, date: 1 });
+ShiftSchema.index({ location: '2dsphere' });
 
 module.exports = mongoose.model('Shift', ShiftSchema);

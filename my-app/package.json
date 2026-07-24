@@ -4,6 +4,7 @@
   "version": "1.0.0",
   "dependencies": {
     "@expo/ui": "~0.2.0-beta.9",
+    "@google/maps": "^1.1.3",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "expo": "~54.0.0",
