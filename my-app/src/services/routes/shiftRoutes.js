@@ -3,6 +3,8 @@ const router = express.Router();
 const Shift = require('../models/Shift.js');
 const User = require('../models/Users.js');
 const getCoordinatesFromAddress = require('../geocodeservices.js');
+const path = require('path')
+require('dotenv').config({ path: path.resolve(__dirname, '../../../.env') });
 
 
 router.post('/creation', async (req, res) => {
@@ -10,7 +12,7 @@ router.post('/creation', async (req, res) => {
         const { email, date, startTime, endTime, skillsRequired, status} = req.body;
 
         //find location of clinic
-        const clinicUser = await User.findById(clinicId).select('clinicProfile.location');
+        const clinicUser = await User.findById(clinicId).select('clinicProfile.location', 'clinicProfile.clinicName');
 
         if (!clinicUser || !clinicUser.clinicProfile) {
             throw new Error('Clinic not found');
@@ -24,7 +26,8 @@ router.post('/creation', async (req, res) => {
             endTime, 
             skillsRequired, 
             status,
-            location : clinicUser.clinicProfile.location
+            location: clinicUser.clinicProfile.location,
+            clinicName: clinicUser.clinicProfile.clinicName
         })
 
         await newShift.save();
@@ -81,6 +84,59 @@ router.get('/nearby', async (req, res) =>{
     }
 });
 
+//PLACES
+router.get('/autocomplete', async (req, res) => {
+    try {
+        const { input } = req.query;
+        if (!input) {
+            return res.json({ predictions: [] });
+        }
+
+        const url = `https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${encodeURIComponent(input)}&types=(regions)&key=${process.env.GOOGLE_MAPS_API_KEY}`;
+
+        const response = await fetch(url);
+        const data = await response.json();
+
+        if (!response.ok) {
+            return res.status(response.status).json({ error: 'Google API error', details: data });
+        }
+
+        res.json({ predictions: data.predictions || [] });
+    } catch (err) {
+        console.error('Autocomplete error:', err);
+        res.status(500).json({ error: 'Internal server error', predictions: [] });
+    }
+});
+
+router.get('/details', async (req, res) => {
+    try {
+        const { placeId } = req.query;
+
+        if (!placeId) {
+            return res.status(400).json({ error: "placeId required" });
+        }
+
+        const url = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&fields=geometry,name&key=${process.env.GOOGLE_MAPS_API_KEY}`;
+
+        const response = await fetch(url);
+        const data = await response.json();
+
+        if (!response.ok || data.status !== "OK") {
+            return res.status(500).json({ 
+                error: "Failed to fetch place details from Google", 
+                status: data.status 
+            });
+        }
+
+        const location = data.result?.geometry?.location;
+        res.status(200).json({ location, name: data.result?.name });
+
+    } catch (err) {
+        console.error('Place details error:', err);
+        res.status(500).json({ error: "Internal server error" });
+    }
+});
+
 // POST /api/shifts/:id/apply
 router.post('/:id/apply', async (req, res) => {
     try {
@@ -130,5 +186,7 @@ router.post('/:id/apply', async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 });
+
+
 
 module.exports = router;

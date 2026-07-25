@@ -28,6 +28,7 @@ const GeoPointSchema = new Schema(
 const ShiftSchema = new Schema(
   {
     clinicId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+    clinicName: {type: String, required: true},
     date: { type: Date, required: true },
     startTime: { type: String, required: true },
     endTime: { type: String, required: true },

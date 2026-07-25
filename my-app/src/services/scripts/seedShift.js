@@ -15,12 +15,13 @@ async function seedDatabase() {
         await Shift.deleteMany({});
         console.log('Cleared existing shifts.');
 
-        // 3. Find or create a test clinic user to act as the owner
-        let clinic = await User.findOne({ role: 'clinic' });
+        // 3. Find or create a test clinic user by email to avoid duplicates
+        const testEmail = 'testclinic@dental.com';
+        let clinic = await User.findOne({ email: testEmail });
         
         if (!clinic) {
             clinic = new User({
-                email: 'testclinic@dental.com',
+                email: testEmail,
                 role: 'clinic',
                 clinicProfile: {
                     clinicName: 'Downtown Dental Care',
@@ -38,10 +39,10 @@ async function seedDatabase() {
             console.log(`Using existing clinic: ${clinic.clinicProfile.clinicName}`);
         }
 
-        // 4. Create a sample shift linked to that clinic's location
+        // 4. Create a sample shift linked to that clinic's location and name
         const sampleShift = new Shift({
             clinicId: clinic._id,
-            email: 'testclinic@dental.com',
+            clinicName: clinic.clinicProfile.clinicName, 
             date: new Date('2026-08-01'),
             startTime: '08:00 AM',
             endTime: '04:00 PM',
@@ -49,7 +50,7 @@ async function seedDatabase() {
             status: 'open',
             location: {
                 type: 'Point',
-                coordinates: clinic.clinicProfile.location.coordinates // Matches clinic coordinates
+                coordinates: clinic.clinicProfile.location.coordinates 
             }
         });
 

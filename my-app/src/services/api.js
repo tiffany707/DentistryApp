@@ -1,5 +1,5 @@
 
-const API_URL ="http://localhost:5000"
+const API_URL ="http://192.168.151.93:5000"
 
 //to get nearby shifts
 export async function getNearbyShifts(lng, lat, maxDistance=15000){
@@ -8,7 +8,7 @@ export async function getNearbyShifts(lng, lat, maxDistance=15000){
 
 
         if(!res.ok){
-            throw new error("There was something wrong with the fetch");
+            throw new Error("There was something wrong with the fetch");
         }
 
          const data = await res.json()
@@ -27,7 +27,7 @@ export async function getNearbyShifts(lng, lat, maxDistance=15000){
     
 }
 
-
+//activates when professional want to apply to a shift
 export async function applyToJob(professionalId, shiftId){
     try{
         const res = await fetch(`${API_URL}/api/shifts/${shiftId}/apply`,
@@ -57,4 +57,25 @@ export async function applyToJob(professionalId, shiftId){
     catch(err){
         return {error: err.message};
     }
+}
+
+//gives search suggestions for shift location
+export async function searchPlaces(query) {
+  const res = await fetch(`${API_URL}/api/shifts/autocomplete?input=${encodeURIComponent(query)}`);
+  const text = await res.text();
+  console.log('AUTOCOMPLETE STATUS:', res.status);
+  console.log('AUTOCOMPLETE BODY:', text.slice(0, 300));
+  const data = JSON.parse(text);
+  return data.predictions;
+}
+
+export async function getPlaceLocation(placeId) {
+        const res = await fetch (`${API_URL}/api/shifts/details?placeId=${placeId}`)
+        
+        if (!res.ok) {
+            throw new Error(data.error || 'Failed to fetch place location');
+        }
+
+        const data = await res.json();
+        return data.location
 }
