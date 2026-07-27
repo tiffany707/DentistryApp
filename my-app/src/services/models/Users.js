@@ -88,6 +88,7 @@ const UserSchema = new Schema(
       lowercase: true,
       trim: true,
     },
+    profilePicture: { type: String, default: null },
     professionalProfile: {
       type: ProfessionalProfileSchema,
       required: function () {

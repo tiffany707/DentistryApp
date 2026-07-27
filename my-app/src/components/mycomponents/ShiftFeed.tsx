@@ -9,12 +9,13 @@ import LocationSearchInput from './LocationSearchInput';
 interface Shift {
     professionalId: string;
     _id: Key;
-    clinicName: string;
+    title: string;
     date: string | Date;
     startTime: string;
     endTime: string;
     skillsRequired: string[];
     status: string;
+    address: string;
 }
 
 export default function ShiftFeed(){
@@ -131,11 +132,12 @@ export default function ShiftFeed(){
                                 key={shift._id?.toString()} 
                                 professionalId={shift.professionalId} 
                                 shiftId={shift._id} 
-                                clinicName={shift.clinicName} 
+                                title={shift.title} 
                                 date={shift.date} 
                                 startTime={shift.startTime} 
                                 endTime={shift.endTime} 
                                 skillsRequired={shift.skillsRequired} 
+                                address={shift.address}
                             />
                         ))
                     )}

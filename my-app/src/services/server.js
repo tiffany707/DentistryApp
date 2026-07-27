@@ -17,8 +17,11 @@ mongoose.connect(process.env.MONGODB_CONNECTION_STRING)
 //router
 const userRoutes = require('./routes/userRoutes.js');
 const shiftRoutes = require('./routes/shiftRoutes.js');
+const aiRoutes = require('./routes/aiRoutes.js');
+
 app.use('/api/users', userRoutes);
 app.use('/api/shifts', shiftRoutes);
+app.use('/api/ai', aiRoutes);
 
 app.listen(5000, () => {
     console.log('Server running on port 5000');

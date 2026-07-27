@@ -29,11 +29,13 @@ const ShiftSchema = new Schema(
   {
     clinicId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
     clinicName: {type: String, required: true},
+    title: {type: String, required: true},
     date: { type: Date, required: true },
     startTime: { type: String, required: true },
     endTime: { type: String, required: true },
     skillsRequired: { type: [String], default: [] },
     location: { type: GeoPointSchema, required: true },
+    address: {type: String, required: true},
     status: {
       type: String,
       enum: ['open', 'matched', 'confirmed', 'completed', 'cancelled'],

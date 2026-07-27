@@ -1,0 +1,79 @@
+import { useEffect, useState } from 'react';
+import {
+    ActivityIndicator,
+    FlatList,
+    Text,
+    View
+} from 'react-native';
+import ProfessionalCard from './ProfessionalCard';
+
+
+interface Professional {
+    id: string;
+    name: string;
+    skills: string[];
+    profilePicture: string;
+    title: string
+}
+
+interface Props{
+    shiftId: string;
+}
+export default function ShiftRecommendation({shiftId} : Props) {
+    const [professionals, setProfessionals] = useState<Professional[]>([]);
+    const [message, setMessage] = useState("");
+    const [loading, setLoading] = useState(false);
+    shiftId = '6a64759bffc261206aa24ab1'; //HARDCODE REMOVE REMOVE REMOVE
+
+    useEffect(() => {
+        async function fetchRecommendations(){
+            setLoading(true);
+            try{
+                const res = await fetch(`http://192.168.151.93:5000/api/ai/recommendations?shiftId=6a64759bffc261206aa24ab1`);
+                const data = await res.json();
+
+                if(!res.ok){
+                    throw new Error("There was an error fetching your recommendations")
+                }
+                setProfessionals(data.matchedCandidates as Professional[]);
+                console.log(data)
+            }
+            catch(err){
+                
+            }
+            finally{
+                setLoading(false);
+            }
+        }
+        fetchRecommendations();
+    
+    }, []);
+
+    if(loading){
+        return(
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                <ActivityIndicator size="large" color="#0000ff" />
+                <Text style={{ marginTop: 10 }}>Finding the best matches...</Text>
+            </View>
+        )
+    }
+
+    return(
+        <View style={{ flex: 1 }}>
+            <Text style={{ fontSize: 18, fontWeight: 'bold' }}>Recommended Professionals</Text>
+            <Text></Text>
+            <FlatList
+                data={professionals}
+                keyExtractor={(item) => item.id} 
+                renderItem={({ item }) => (
+                    <ProfessionalCard 
+                        name={item.name} 
+                        title={item.title}
+                        skills={item.skills} 
+                        profilePicture={item.profilePicture} 
+                    />
+                )}
+            />
+        </View>
+    )
+}

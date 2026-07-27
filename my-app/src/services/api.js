@@ -4,7 +4,7 @@ const API_URL ="http://192.168.151.93:5000"
 //to get nearby shifts
 export async function getNearbyShifts(lng, lat, maxDistance=15000){
     try{
-        const res = await fetch(`${API_URL}/api/shifts/nearby?lng=${lng}&lat=${lat}&maxDistance=${maxDistance}`);
+        const res = await fetch(`${API_URL}/api/shifts/shiftsNearby?lng=${lng}&lat=${lat}&maxDistance=${maxDistance}`);
 
 
         if(!res.ok){
@@ -27,6 +27,34 @@ export async function getNearbyShifts(lng, lat, maxDistance=15000){
     
 }
 
+
+// Used in feed to get recommendations
+export async function aiProfessionalRecommendations(shiftId){
+    try{
+        console.log("we are fetching aiProfesssionalRecommendation");
+
+        const res = await fetch(`${API_URL}/api/ai/recommendations?shiftId=${shiftId}`, {
+            method: "GET",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({shiftId})  
+        })
+
+        console.log("we are fetched");
+
+        const data = await res.json();
+        
+        if(!res.ok){
+            throw new error(data.error || "There was an error fetching your recommendations")
+        }
+
+        return { success: true, data};
+    }
+    catch(err){
+        return(err.message)
+    }
+}
+
+
 //activates when professional want to apply to a shift
 export async function applyToJob(professionalId, shiftId){
     try{
@@ -47,11 +75,6 @@ export async function applyToJob(professionalId, shiftId){
 
         return { success: true, data}
 
-        if(data.error){
-            return {
-                success: false, error: err.message
-            }
-        }
 
     }
     catch(err){
@@ -79,3 +102,4 @@ export async function getPlaceLocation(placeId) {
         const data = await res.json();
         return data.location
 }
+

@@ -1,4 +1,4 @@
-import { NativeTabs, Label, Icon } from 'expo-router/unstable-native-tabs';
+import { Icon, Label, NativeTabs } from 'expo-router/unstable-native-tabs';
 import { useColorScheme } from 'react-native';
 
 import { Colors } from '@/constants/theme';
@@ -6,7 +6,7 @@ import { Colors } from '@/constants/theme';
 export default function AppTabs() {
   const scheme = useColorScheme();
   const normalizedScheme = scheme === 'dark' ? 'dark' : 'light';
-  const colors = Colors[normalizedScheme];
+const colors = Colors[normalizedScheme];
 
   return (
     <NativeTabs
@@ -27,12 +27,27 @@ export default function AppTabs() {
         />
       </NativeTabs.Trigger>
 
-      <NativeTabs.Trigger name="likes">
-        <Label>Likes</Label>
+      <NativeTabs.Trigger name="shiftFeedScreen">
+        <Label>Shift Feed Screen</Label>
         <Icon
           src={require('@/assets/images/tabIcons/explore.png')}
         />
-       </NativeTabs.Trigger>
+      </NativeTabs.Trigger>
+
+      <NativeTabs.Trigger name="shiftCreationScreen">
+        <Label>Shift Creation Screen</Label>
+        <Icon
+          src={require('@/assets/images/tabIcons/explore.png')}
+        />
+      </NativeTabs.Trigger>
+
+      <NativeTabs.Trigger name="shiftAIRecommendations">
+        <Label>Shift AI Recommendations</Label>
+        <Icon
+          src={require('@/assets/images/tabIcons/explore.png')}
+        />
+      </NativeTabs.Trigger>
+
     </NativeTabs>
   );
 }

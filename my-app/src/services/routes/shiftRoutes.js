@@ -9,10 +9,11 @@ require('dotenv').config({ path: path.resolve(__dirname, '../../../.env') });
 
 router.post('/creation', async (req, res) => {
     try{
-        const { email, date, startTime, endTime, skillsRequired, status} = req.body;
+        const { email, title, date, startTime, endTime, skillsRequired, jobDescription} = req.body;
 
+        const status = 'open';
         //find location of clinic
-        const clinicUser = await User.findById(clinicId).select('clinicProfile.location', 'clinicProfile.clinicName');
+        const clinicUser = await User.findById(clinicId).select('clinicProfile.location', 'clinicProfile.clinicName', 'clinicProfile.address');
 
         if (!clinicUser || !clinicUser.clinicProfile) {
             throw new Error('Clinic not found');
@@ -20,14 +21,17 @@ router.post('/creation', async (req, res) => {
 
         //create the shift
         const newShift = new Shift({
+            title,
             email, 
             date, 
             startTime, 
             endTime, 
             skillsRequired, 
             status,
+            jobDescription,
             location: clinicUser.clinicProfile.location,
-            clinicName: clinicUser.clinicProfile.clinicName
+            clinicName: clinicUser.clinicProfile.clinicName,
+            address: clinicUser.clinicProfile.address
         })
 
         await newShift.save();
@@ -48,8 +52,10 @@ router.post('/creation', async (req, res) => {
 })
 
 
+
+
 //find shifts that are nearby the user
-router.get('/nearby', async (req, res) =>{
+router.get('/shiftsNearby', async (req, res) =>{
     try {
         const { lng, lat, maxDistance } = req.query;
 
@@ -83,6 +89,8 @@ router.get('/nearby', async (req, res) =>{
         res.status(500).json({ error: err.message });
     }
 });
+
+
 
 //PLACES
 router.get('/autocomplete', async (req, res) => {
