@@ -3,3 +3,5 @@
     assigned if they click apply. (I think for demo its ok tho).
 
 2. On ShiftCreation.tsx you have to change the hardcoded email to the email of the clinic that is logged in.
+
+3. messed up the file structure 

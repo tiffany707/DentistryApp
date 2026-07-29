@@ -1,7 +1,7 @@
-import { Key } from 'react';
-import { StyleSheet, Text, View, FlatList, TouchableOpacity, SafeAreaView, TextInputBase, TextInput, Touchable } from 'react-native';
-import { applyToJob } from '../../services/api'
 import { Ionicons } from '@expo/vector-icons';
+import { Key } from 'react';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { applyToJob } from '../../services/api';
 
 interface Props{
     professionalId: string;
@@ -60,8 +60,8 @@ export default function ShiftCard({professionalId, shiftId, title, date, startTi
     const styles = StyleSheet.create({
         text: { fontSize: 14, marginBottom: 5 },
         header: { fontSize: 16, marginBottom: 5,  fontWeight: "bold" },
-        card: { borderWidth: 1, borderColor: '#ccc', padding: 15, borderRadius: 8, marginBottom: 15 },
-        button: { backgroundColor: '#4CAF50', padding: 10, borderRadius: 5, alignItems: 'center', marginTop: 10 },
+        card: { borderWidth: 1, borderColor: '#ccc', padding: 15, borderRadius: 30, marginBottom: 15 },
+        button: { backgroundColor: '#C4B3C5', padding: 10, borderRadius: 20, alignItems: 'center', marginTop: 10 },
         buttonText: { color: '#fff', fontWeight: 'bold' },
         infoRow: {
             flexDirection: 'row',

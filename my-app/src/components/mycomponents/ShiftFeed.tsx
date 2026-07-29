@@ -1,10 +1,10 @@
-import { Key, useEffect, useState } from 'react';
-import { StyleSheet, Text, View, TextInput, TouchableOpacity, ActivityIndicator, ScrollView } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import * as Location from 'expo-location';
 import { getNearbyShifts } from '@/services/api';
-import ShiftCard from './ShiftCard';
+import * as Location from 'expo-location';
+import { Key, useEffect, useState } from 'react';
+import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import LocationSearchInput from './LocationSearchInput';
+import ShiftCard from './ShiftCard';
 
 interface Shift {
     professionalId: string;
@@ -191,7 +191,7 @@ const styles = StyleSheet.create({
         flexShrink: 1, // <-- 2. Allows the row to shrink to fit the parent container instead of forcing overflow
     },
     searchButton: {
-        backgroundColor: '#007AFF',
+        backgroundColor: '#C4B3C5',
         paddingHorizontal: 16,
         height: 40,
         justifyContent: 'center',

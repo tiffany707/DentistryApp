@@ -13,7 +13,7 @@ router.post('/creation', async (req, res) => {
 
         const status = 'open';
         //find location of clinic
-        const clinicUser = await User.findById(clinicId).select('clinicProfile.location', 'clinicProfile.clinicName', 'clinicProfile.address');
+        const clinicUser = await User.findOne({email}).select('clinicProfile.location clinicProfile.clinicName clinicProfile.address _id');
 
         if (!clinicUser || !clinicUser.clinicProfile) {
             throw new Error('Clinic not found');
@@ -21,6 +21,8 @@ router.post('/creation', async (req, res) => {
 
         //create the shift
         const newShift = new Shift({
+            clinicId: clinicUser._id,
+            clinicName: clinicUser.clinicProfile.clinicName,
             title,
             email, 
             date, 
@@ -40,7 +42,7 @@ router.post('/creation', async (req, res) => {
 
         res.status(201).json({
             message: "Shift creation successful",
-            shift:{ clinicId, date, startTime, endTime, skillsRequired, status }
+            shift:{ shiftId: newShift._id, date, startTime, endTime, skillsRequired, status }
         })
     }
     catch(err){

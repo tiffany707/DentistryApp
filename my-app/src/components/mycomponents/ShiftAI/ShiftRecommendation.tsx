@@ -51,16 +51,19 @@ export default function ShiftRecommendation({shiftId} : Props) {
 
     if(loading){
         return(
-            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-                <ActivityIndicator size="large" color="#0000ff" />
-                <Text style={{ marginTop: 10 }}>Finding the best matches...</Text>
+            <View style={{ flex: 1, padding: 16 }}>
+                <Text style={{ fontSize: 18, fontWeight: 'bold', textAlign: 'center'  }}>Recommended Professionals</Text>
+                <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                    <ActivityIndicator size="large" color="#C4B3C5" />
+                    <Text style={{ marginTop: 10 }}>AI is looking for the best matches...</Text>
+                </View>
             </View>
         )
     }
 
     return(
         <View style={{ flex: 1 }}>
-            <Text style={{ fontSize: 18, fontWeight: 'bold' }}>Recommended Professionals</Text>
+            <Text style={{ fontSize: 18, fontWeight: 'bold', textAlign: 'center'  }}>Recommended Professionals</Text>
             <Text></Text>
             <FlatList
                 data={professionals}

@@ -36,6 +36,7 @@ const ShiftSchema = new Schema(
     skillsRequired: { type: [String], default: [] },
     location: { type: GeoPointSchema, required: true },
     address: {type: String, required: true},
+    jobDescription: {type: String},
     status: {
       type: String,
       enum: ['open', 'matched', 'confirmed', 'completed', 'cancelled'],
