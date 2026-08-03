@@ -41,6 +41,10 @@ export default function ShiftFeed(){
         }
     }
 
+    function onApplySuccess(){
+
+    }
+
     useEffect(()=>{
         async function initLocationAndFetch(){
             try {
@@ -97,6 +101,7 @@ export default function ShiftFeed(){
     
     return(
         <SafeAreaView style={styles.container} edges={['bottom']}>
+            <Text style={styles.header}>Available Shifts Near You</Text>
             <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
                 {/* The Manual Location & Distance Input Bar */}
                 <View style={styles.searchContainer}>
@@ -120,7 +125,7 @@ export default function ShiftFeed(){
 
                 {/* The Shifts List */}
                 <View style={styles.listContainer}>
-                    <Text style={styles.header}>Available Shifts Near You</Text>
+
                     
                     {loading ? (
                         <ActivityIndicator size="small" style={{ marginTop: 20 }} />
@@ -138,6 +143,13 @@ export default function ShiftFeed(){
                                 endTime={shift.endTime} 
                                 skillsRequired={shift.skillsRequired} 
                                 address={shift.address}
+                                 onApplySuccess={() => {
+                                    fetchShifts(
+                                        parseFloat(latInput),
+                                        parseFloat(lngInput),
+                                        parseFloat(distanceInput) || 15000
+                                    );
+                                }}
                             />
                         ))
                     )}
@@ -150,7 +162,7 @@ const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: '#fff' },
     scrollContent: { padding: 16 },
     centered: { flex: 1, justifyContent: 'center', alignItems: 'center', marginTop: 30 },
-    header: { fontSize: 18, fontWeight: 'bold', marginBottom: 10 },
+    header: { fontSize: 18, fontWeight: 'bold', marginBottom: 10, textAlign: 'center' },
     errorText: { color: 'red', textAlign: 'center', marginTop: 50 },
     
     searchContainer: {

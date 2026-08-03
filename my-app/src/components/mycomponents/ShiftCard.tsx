@@ -1,9 +1,9 @@
 import { Ionicons } from '@expo/vector-icons';
-import { Key } from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Key, useState } from 'react';
+import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { applyToJob } from '../../services/api';
 
-interface Props{
+interface Props {
     professionalId: string;
     shiftId: Key;
     title: string;
@@ -12,61 +12,90 @@ interface Props{
     endTime: string;
     skillsRequired: string[];
     address: string;
+    onApplySuccess?: () => void; // <-- new
 }
 
-export default function ShiftCard({professionalId, shiftId, title, date, startTime, endTime, skillsRequired, address}: Props) {
-    const skillsList = skillsRequired.join(", ")
+export default function ShiftCard({
+    professionalId, shiftId, title, date, startTime, endTime,
+    skillsRequired, address, onApplySuccess
+}: Props) {
+    const [applying, setApplying] = useState(false);
+    const skillsList = skillsRequired.join(", ");
 
-    const formattedDate = typeof date === "string" 
-    ? date.split("-T")[0].split("T")[0] // handles both "-T" and "T"
-    : `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+    const dateObj = typeof date === "string" ? new Date(date) : date;
 
-    return(
+    const formattedDate = dateObj.toLocaleDateString('en-US', {
+        weekday: 'short',   
+        month: 'long',
+        day: 'numeric',
+        year: 'numeric',
+        timeZone: 'UTC',    
+    });
+
+    function formatTime(time: string | Date, timeZone: string = 'America/Edmonton') {
+    const timeObj = typeof time === "string" ? new Date(time) : time;
+
+    return timeObj.toLocaleTimeString('en-US', {
+        hour: '2-digit',
+        minute: '2-digit',
+        timeZone,
+    });
+}
+
+    const handleApply = async () => {
+        try {
+            console.log("applying...")
+            setApplying(true);
+            await applyToJob(professionalId, shiftId);
+            console.log("applied")
+            onApplySuccess?.(); // tell the parent it worked, let it decide what to do
+        } catch (err) {
+            alert('Could not apply to this shift. Please try again.');
+        } finally {
+            setApplying(false);
+        }
+    };
+
+    return (
         <View key={shiftId} style={styles.card}>
-      <Text style={styles.header}>{title}</Text>
+            <Text style={styles.header}>{title}</Text>
 
-      {/* Address Row */}
-      <View style={styles.infoRow}>
-        <Ionicons name="location-outline" size={16} color="#666" />
-        <Text style={styles.text}>{address}</Text>
-      </View>
+            <View style={styles.infoRow}>
+                <Ionicons name="location-outline" size={16} color="#666" />
+                <Text style={styles.text}>{address}</Text>
+            </View>
+            <View style={styles.infoRow}>
+                <Ionicons name="calendar-outline" size={16} color="#666" />
+                <Text style={styles.text}>{formattedDate}</Text>
+            </View>
+            <View style={styles.infoRow}>
+                <Ionicons name="time-outline" size={16} color="#666" />
+                <Text style={styles.text}>{formatTime(startTime)} - {formatTime(endTime)}</Text>
+            </View>
+            <View style={styles.infoRow}>
+                <Ionicons name="construct-outline" size={16} color="#666" />
+                <Text style={styles.text}>Skills: {skillsList}</Text>
+            </View>
 
-      {/* Date Row */}
-      <View style={styles.infoRow}>
-        <Ionicons name="calendar-outline" size={16} color="#666" />
-        <Text style={styles.text}>{formattedDate}</Text>
-      </View>
+            <TouchableOpacity
+                style={[styles.button, applying && styles.buttonDisabled]}
+                onPress={handleApply}
+                disabled={applying}
+            >
+                {applying
+                    ? <ActivityIndicator size="small" color="#fff" />
+                    : <Text style={styles.buttonText}>Apply Now</Text>}
+            </TouchableOpacity>
+        </View>
+    );
+}
 
-      {/* Time Row */}
-      <View style={styles.infoRow}>
-        <Ionicons name="time-outline" size={16} color="#666" />
-        <Text style={styles.text}>{startTime} - {endTime}</Text>
-      </View>
-
-      {/* Skills Row */}
-      <View style={styles.infoRow}>
-        <Ionicons name="construct-outline" size={16} color="#666" />
-        <Text style={styles.text}>Skills: {skillsList}</Text>
-      </View>
-
-      <TouchableOpacity style={styles.button} onPress={() => { applyToJob(shiftId, professionalId) }}>
-        <Text style={styles.buttonText}>Apply Now</Text>
-      </TouchableOpacity>
-    </View>
-    )
-
-} 
-
-    const styles = StyleSheet.create({
-        text: { fontSize: 14, marginBottom: 5 },
-        header: { fontSize: 16, marginBottom: 5,  fontWeight: "bold" },
-        card: { borderWidth: 1, borderColor: '#ccc', padding: 15, borderRadius: 30, marginBottom: 15 },
-        button: { backgroundColor: '#C4B3C5', padding: 10, borderRadius: 20, alignItems: 'center', marginTop: 10 },
-        buttonText: { color: '#fff', fontWeight: 'bold' },
-        infoRow: {
-            flexDirection: 'row',
-            alignItems: 'center',
-            gap: 8,              // Space between icon and text
-            marginBottom: 6,
-        },
-    })
+const styles = StyleSheet.create({
+    text: { fontSize: 14, marginBottom: 5, flex: 1 },
+    header: { fontSize: 16, marginBottom: 5, fontWeight: "bold" },
+    card: { borderWidth: 1, borderColor: '#ccc', padding: 15, borderRadius: 30, marginBottom: 15 },
+    button: { backgroundColor: '#C4B3C5', padding: 10, borderRadius: 20, alignItems: 'center', marginTop: 10 },
+    buttonDisabled: { opacity: 0.6 },
+    buttonText: { color: '#fff', fontWeight: 'bold' },
+    infoRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 8, marginBottom: 6 },
+});

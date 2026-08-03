@@ -9,4 +9,4 @@ async function UploadToCloud(filePath, destination, userId){
     return {publicUrl, userId}
 }
 
-module.exports( { UploadToCloud })
+module.exports =  { UploadToCloud }

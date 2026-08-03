@@ -2,11 +2,14 @@
 import ShiftRecommendation from '@/components/mycomponents/ShiftAI/ShiftRecommendation';
 import { StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useLocalSearchParams } from 'expo-router';
 
 export default function ShiftCreationScreen() {
+        const { shiftId } = useLocalSearchParams<{ shiftId: string }>();
+
     return (
         <SafeAreaView style={styles.container}>
-            <ShiftRecommendation shiftId={'6a64759bffc261206aa24ab1'}/>
+            <ShiftRecommendation key={shiftId} shiftId={shiftId} />
         </SafeAreaView>
     );
 }

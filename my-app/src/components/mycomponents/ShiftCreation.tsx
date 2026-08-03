@@ -7,7 +7,9 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  View
+  View,
+  KeyboardAvoidingView,
+  Platform
 } from 'react-native';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 
@@ -19,6 +21,7 @@ export interface ShiftFormData {
   endTime: Date;
   skillsRequired: string;
   jobDescription: string;
+  timeZone: string;
 }
 
 interface ShiftApplicationFormProps {
@@ -70,159 +73,179 @@ export default function ShiftApplicationForm() {
     setShowEndPicker(false);
   }
 
-  const handleSubmit = async () => {
-    console.log("submitting form")
-    try{
-      const email = 'info@downtownsmile.com'; // THIS IS HARDCODED
-      const payload: ShiftFormData = {
-        email,
-        title: shiftTitle,
-        date,
-        startTime,
-        endTime,
-        skillsRequired,
-        jobDescription,
-      };
-      
-      const res = await fetch(`${API_URL}/api/shifts/creation`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payload),
-      });
+const mergeDateAndTime = (date: Date, time: Date): Date => {
+  const merged = new Date(date);
+  merged.setHours(time.getHours(), time.getMinutes(), 0, 0);
+  return merged;
+};
 
-      console.log("api returned")
+const handleSubmit = async () => {
+  console.log("submitting form");
+  console.log(skillsRequired);
+  try {
+    const email = 'info@downtownsmile.com'; // THIS IS HARDCODED
 
-      const data = await res.json();
+    // Merge the date with each time picker's time before sending
+    const mergedStart = mergeDateAndTime(date, startTime);
+    const mergedEnd = mergeDateAndTime(date, endTime);
+    const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    const payload: ShiftFormData = {
+      email,
+      title: shiftTitle,
+      date,
+      startTime: mergedStart,
+      endTime: mergedEnd,
+      skillsRequired,
+      jobDescription,
+      timeZone: userTimeZone,
+    };
 
-      if(!res.ok){
-        console.error("Backend Error Details:", data);
-        throw new Error("There was an error submitting your shift.")
-      }
+    const res = await fetch(`${API_URL}/api/shifts/creation`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
 
-      console.log("changing page")
-      router.push({
-        pathname: '/shiftAIRecommendations',
-        params: { shiftId: data.shift.shiftId }
-      })
-    }catch(err){
-      return(
-        <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      
-        <Text style={styles.header}>New Shift</Text>
-        <Text>There was an error submitting your shift.</Text>
-        </ ScrollView>
-      )
+    console.log("api returned");
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      console.error("Backend Error Details:", data);
+      throw new Error("There was an error submitting your shift.");
     }
 
+    console.log("changing page");
+    console.log(data.shift.shiftId);
+    router.push({
+      pathname: '/shiftAIRecommendations',
+      params: {
+        shiftId: data.shift.shiftId,
+        timestamp: Date.now() // Forces Expo Router to see this as a brand new route params object
+      }
+    });
 
-
-  };
+  } catch (err) {
+    console.error("Submit failed:", err);
+    return (
+      <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+        <Text style={styles.header}>New Shift</Text>
+        <Text>There was an error submitting your shift.</Text>
+      </ScrollView>
+    );
+  }
+};
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      
-      <Text style={styles.header}>New Shift</Text>
+    <KeyboardAvoidingView 
+      style={{ flex: 1 }} 
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
+    >
+      <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+        
+        <Text style={styles.header}>New Shift</Text>
 
-      <Text style={styles.label}>Shift Title</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="e.g. Dental Assistant"
-        placeholderTextColor="#665567"
-        value={shiftTitle}
-        onChangeText={setShiftTitle}
-      />
+        <Text style={styles.label}>Shift Title</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="e.g. Dental Assistant"
+          placeholderTextColor="#665567"
+          value={shiftTitle}
+          onChangeText={setShiftTitle}
+        />
 
-      <Text style={styles.label}>Date</Text>
-      <TouchableOpacity 
-          style={styles.inputBox} 
-          onPress={() => setShowDatePicker(true)}
-          activeOpacity={0.8}
-      >
-          <Text style={styles.inputText}>{formattedDate}</Text>
-          <Ionicons name="calendar-outline" size={20} color="#4B2E83" />
-      </TouchableOpacity>
+        <Text style={styles.label}>Date</Text>
+        <TouchableOpacity 
+            style={styles.inputBox} 
+            onPress={() => setShowDatePicker(true)}
+            activeOpacity={0.8}
+        >
+            <Text style={styles.inputText}>{formattedDate}</Text>
+            <Ionicons name="calendar-outline" size={20} color="#4B2E83" />
+        </TouchableOpacity>
 
-      <DateTimePickerModal
-        isVisible={showDatePicker}
-        mode="date"
-        onConfirm={handleConfirmDate}
-        onCancel={() => setShowDatePicker(false)}
-        date={date}
-        buttonTextColorIOS="#4B2E83"
-      />
+        <DateTimePickerModal
+          isVisible={showDatePicker}
+          mode="date"
+          onConfirm={handleConfirmDate}
+          onCancel={() => setShowDatePicker(false)}
+          date={date}
+          buttonTextColorIOS="#4B2E83"
+        />
 
-      {/* Time */}
-      <View style={styles.timeSectionContainer}>
-          <Text style={styles.label}>Time</Text>
+        {/* Time */}
+        <View style={styles.timeSectionContainer}>
+            <Text style={styles.label}>Time</Text>
 
-          <View style={styles.row}>
-              <TouchableOpacity 
-                  style={styles.inputBox} 
-                  onPress={() => setShowStartPicker(true)}
-                  activeOpacity={0.8}
-              >
-                  <Text style={styles.inputText}>{formatTime(startTime)}</Text>
-                  <Ionicons name="time-outline" size={18} color="#4B2E83" />
-              </TouchableOpacity>
+            <View style={styles.row}>
+                <TouchableOpacity 
+                    style={styles.inputBox} 
+                    onPress={() => setShowStartPicker(true)}
+                    activeOpacity={0.8}
+                >
+                    <Text style={styles.inputText}>{formatTime(startTime)}</Text>
+                    <Ionicons name="time-outline" size={18} color="#4B2E83" />
+                </TouchableOpacity>
 
-              <Text style={styles.hyphen}>-</Text>
+                <Text style={styles.hyphen}>-</Text>
 
-              <TouchableOpacity 
-                  style={styles.inputBox} 
-                  onPress={() => setShowEndPicker(true)}
-                  activeOpacity={0.8}
-              >
-                  <Text style={styles.inputText}>{formatTime(endTime)}</Text>
-                  <Ionicons name="time-outline" size={18} color="#4B2E83" />
-              </TouchableOpacity>
-          </View>
+                <TouchableOpacity 
+                    style={styles.inputBox} 
+                    onPress={() => setShowEndPicker(true)}
+                    activeOpacity={0.8}
+                >
+                    <Text style={styles.inputText}>{formatTime(endTime)}</Text>
+                    <Ionicons name="time-outline" size={18} color="#4B2E83" />
+                </TouchableOpacity>
+            </View>
 
-          <DateTimePickerModal
-              isVisible={showStartPicker}
-              mode="time"
-              onConfirm={handleConfirmStart}
-              onCancel={() => setShowStartPicker(false)}
-              date={startTime}
-              buttonTextColorIOS="#4B2E83"
-          />
+            <DateTimePickerModal
+                isVisible={showStartPicker}
+                mode="time"
+                onConfirm={handleConfirmStart}
+                onCancel={() => setShowStartPicker(false)}
+                date={startTime}
+                buttonTextColorIOS="#4B2E83"
+            />
 
-          <DateTimePickerModal
-              isVisible={showEndPicker}
-              mode="time"
-              onConfirm={handleConfirmEnd}
-              onCancel={() => setShowEndPicker(false)}
-              date={endTime}
-              buttonTextColorIOS="#4B2E83"
-          />
-      </View>
+            <DateTimePickerModal
+                isVisible={showEndPicker}
+                mode="time"
+                onConfirm={handleConfirmEnd}
+                onCancel={() => setShowEndPicker(false)}
+                date={endTime}
+                buttonTextColorIOS="#4B2E83"
+            />
+        </View>
 
-      <Text style={styles.label}>Skills Requirement</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="e.g. X-Ray, Sterilization"
-        placeholderTextColor="#665567"
-        value={skillsRequired}
-        onChangeText={setSkillsRequired}
-      />
+        <Text style={styles.label}>Skills Requirement</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="e.g. X-Ray, Sterilization"
+          placeholderTextColor="#665567"
+          value={skillsRequired}
+          onChangeText={setSkillsRequired}
+        />
 
-      <Text style={styles.label}>Job Description</Text>
-      <TextInput
-        style={[styles.input, styles.multilineInput]}
-        placeholder="Describe the shift responsibilities..."
-        placeholderTextColor="#665567"
-        value={jobDescription}
-        onChangeText={setJobDescription}
-        multiline
-        numberOfLines={5}
-        textAlignVertical="top"
-      />
+        <Text style={styles.label}>Job Description</Text>
+        <TextInput
+          style={[styles.input, styles.multilineInput]}
+          placeholder="Describe the shift responsibilities..."
+          placeholderTextColor="#665567"
+          value={jobDescription}
+          onChangeText={setJobDescription}
+          multiline
+          numberOfLines={5}
+          textAlignVertical="top"
+        />
 
-      <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
-        <Text style={styles.submitButtonText}>Submit</Text>
-      </TouchableOpacity>
-    </ScrollView>
+        <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
+          <Text style={styles.submitButtonText}>Submit</Text>
+        </TouchableOpacity>
+      </ScrollView>
+    </KeyboardAvoidingView>
+
   );
 }
 

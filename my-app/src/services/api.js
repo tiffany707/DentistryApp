@@ -9,6 +9,7 @@ export async function getNearbyShifts(lng, lat, maxDistance=15000){
 
         if(!res.ok){
             throw new Error("There was something wrong with the fetch");
+            console.log(res.err)
         }
 
          const data = await res.json()
@@ -59,25 +60,25 @@ export async function aiProfessionalRecommendations(shiftId){
 export async function applyToJob(professionalId, shiftId){
     try{
         const res = await fetch(`${API_URL}/api/shifts/${shiftId}/apply`,
-            {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ professionalId }),
-            });
+        {
+            method: 'POST',
+        }
+        );
+        console.log("fetched")
 
         const data = await res.json();
 
         if(!res.ok){
-            throw new error( data.error || "Failed to apply");
+            throw new Error( data.error || "Failed to apply");
         }
+
 
         return { success: true, data}
 
 
     }
     catch(err){
+        console.log(err.message)
         return {error: err.message};
     }
 }

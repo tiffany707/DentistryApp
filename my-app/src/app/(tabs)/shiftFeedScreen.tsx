@@ -1,6 +1,6 @@
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StyleSheet } from 'react-native';
-import ShiftFeed from '../components/mycomponents/ShiftFeed';
+import ShiftFeed from '../../components/mycomponents/ShiftFeed';
 
 export default function shiftFeedScreen() {
     return (

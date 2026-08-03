@@ -20,13 +20,6 @@ const colors = Colors[normalizedScheme];
         />
       </NativeTabs.Trigger>
 
-      <NativeTabs.Trigger name="explore">
-        <Label>Explore</Label>
-        <Icon
-          src={require('@/assets/images/tabIcons/explore.png')}
-        />
-      </NativeTabs.Trigger>
-
       <NativeTabs.Trigger name="shiftFeedScreen">
         <Label>Shift Feed Screen</Label>
         <Icon
@@ -41,12 +34,12 @@ const colors = Colors[normalizedScheme];
         />
       </NativeTabs.Trigger>
 
-      <NativeTabs.Trigger name="shiftAIRecommendations">
+      {/* <NativeTabs.Trigger name="shiftAIRecommendations">
         <Label>Shift AI Recommendations</Label>
         <Icon
           src={require('@/assets/images/tabIcons/explore.png')}
         />
-      </NativeTabs.Trigger>
+      </NativeTabs.Trigger> */}
 
     </NativeTabs>
   );

@@ -23,13 +23,14 @@ export default function ShiftRecommendation({shiftId} : Props) {
     const [professionals, setProfessionals] = useState<Professional[]>([]);
     const [message, setMessage] = useState("");
     const [loading, setLoading] = useState(false);
-    shiftId = '6a64759bffc261206aa24ab1'; //HARDCODE REMOVE REMOVE REMOVE
+    
 
     useEffect(() => {
         async function fetchRecommendations(){
             setLoading(true);
+            setProfessionals([]);
             try{
-                const res = await fetch(`http://192.168.151.93:5000/api/ai/recommendations?shiftId=6a64759bffc261206aa24ab1`);
+                const res = await fetch(`http://192.168.151.93:5000/api/ai/recommendations?shiftId=${shiftId}`);
                 const data = await res.json();
 
                 if(!res.ok){
@@ -47,7 +48,7 @@ export default function ShiftRecommendation({shiftId} : Props) {
         }
         fetchRecommendations();
     
-    }, []);
+    }, [shiftId]);
 
     if(loading){
         return(

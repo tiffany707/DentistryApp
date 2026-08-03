@@ -18,6 +18,7 @@ router.get('/recommendations', async (req, res) => {
         }
         
         const requirementsQuery = shift.skillsRequired.join(', ');
+        console.log(requirementsQuery)
 
         const [lng, lat] = shift.location.coordinates
         const maxDistance=15000;
@@ -41,18 +42,27 @@ router.get('/recommendations', async (req, res) => {
                 $maxDistance: radiusInMeters
             }
             }
-        }).select('_id profilePicture professionalProfile.firstName professionalProfile.lastName professionalProfile.title professionalProfile.skills');
-    
-        nearbyUsers.name = `${nearbyUsers.firstName}  ${nearbyUsers.lastName}`;  
-    
+        }).select('_id profilePicture professionalProfile.firstName professionalProfile.lastName professionalProfile.title professionalProfile.skills')
+    .lean();
 
+const formattedUsers = nearbyUsers.map(user => ({
+    id: user._id,
+    profilePicture: user.profilePicture,
+    name: `${user.professionalProfile?.firstName ?? ''} ${user.professionalProfile?.lastName ?? ''}`.trim(),
+    title: user.professionalProfile?.title ?? '',
+    skills: Array.isArray(user.professionalProfile?.skills)
+        ? user.professionalProfile.skills.join(', ')
+        : '',
+}));
+    
+        console.log(formattedUsers)
         const response = await ai.models.generateContent({
             model: "gemini-3.6-flash",
             contents: `
-            Here is a list of nearby professionals ${JSON.stringify(nearbyUsers, null, 2)}
+            Here is a list of nearby professionals ${JSON.stringify(formattedUsers, null, 2)}
             
             Task: Filter and select the best candidates who match this requirement: "${requirementsQuery}". 
-            Return a ranked list of the matching professionals.`,
+            Return a list of matching professionals ranked from the professional that would most fit the requirements to the least.`,
 
             config: {
                 responseMimeType: 'application/json',

@@ -3,8 +3,9 @@ const router = express.Router();
 const Shift = require('../models/Shift.js');
 const User = require('../models/Users.js');
 const getCoordinatesFromAddress = require('../geocodeservices.js');
+const { createShiftEvent } = require("../services/calendarEvents")
 const path = require('path')
-require('dotenv').config({ path: path.resolve(__dirname, '../../../.env') });
+require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
 
 
 router.post('/creation', async (req, res) => {
@@ -70,12 +71,13 @@ router.get('/shiftsNearby', async (req, res) =>{
         // maxDistance defaults to 10,000 meters (10km) if not specified
         const radiusInMeters = maxDistance ? Number(maxDistance) : 10000;
 
-        const nearbyShifts = await Shift.find({
+       const nearbyShifts = await Shift.find({
+            status: 'open',
             location: {
                 $near: {
                     $geometry: {
                         type: 'Point',
-                        coordinates: [parseFloat(lng), parseFloat(lat)] // [longitude, latitude]
+                        coordinates: [parseFloat(lng), parseFloat(lat)]
                     },
                     $maxDistance: radiusInMeters
                 }
@@ -149,14 +151,10 @@ router.get('/details', async (req, res) => {
 
 // POST /api/shifts/:id/apply
 router.post('/:id/apply', async (req, res) => {
+     let calendarEvent = null;
     try {
         const shiftId = req.params.id;
-        const { professionalId } = req.body;
-
-        // 1. Validate that the professionalId is provided
-        if (!professionalId) {
-            return res.status(400).json({ error: 'Professional ID is required to apply.' });
-        }
+      
 
         // 2. Find the shift by its ID
         const shift = await Shift.findById(shiftId);
@@ -170,30 +168,31 @@ router.post('/:id/apply', async (req, res) => {
             return res.status(400).json({ error: `This shift is no longer open (Current status: ${shift.status}).` });
         }
 
-        // 4. Check if this professional has already applied or been matched
-        // (Assuming you check against your aiMatchResults or matchedProfessionalId)
-        const alreadyApplied = shift.aiMatchResults.some(
-            (match) => match.professionalId.toString() === professionalId
-        );
+    
 
-        if (alreadyApplied) {
-            return res.status(400).json({ error: 'You have already applied or been matched to this shift.' });
-        }
-
-        // 5. Update the shift status or add them to the matching/applicants list
-        // For simplicity, let's assign them directly or set status to 'pending' / 'matched'
-        shift.matchedProfessionalId = professionalId;
         shift.status = 'matched'; // or 'pending_approval' depending on your workflow
-
         await shift.save();
+        console.log("Shift status:", shift.status)
+
+        try {
+            const resShiftDate = await createShiftEvent(shift);
+            calendarEvent = { id: resShiftDate.id, htmlLink: resShiftDate.htmlLink, status: resShiftDate.status };
+            console.log('Calendar event created:', resShiftDate.htmlLink);
+        } catch (calendarErr) {
+            console.error('Calendar creation failed:', calendarErr); // full object, not .message
+        }
 
         res.status(200).json({
             message: 'Successfully applied to the shift!',
-            shift
+            shift,
+            calendarEvent
         });
 
-    } catch (err) {
-        res.status(500).json({ error: err.message });
+        } catch (err) {
+        console.error('Route error:', err.message);
+        if (!res.headersSent) {
+            res.status(500).json({ error: err.message });
+        }
     }
 });
 

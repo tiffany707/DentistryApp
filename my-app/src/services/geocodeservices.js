@@ -1,6 +1,6 @@
 const { createClient } = require("@google/maps");
 const path = require('path');
-require('dotenv').config({ path: path.resolve(__dirname, '../../.env') });
+require('dotenv').config({ path: path.resolve(__dirname, './.env') });
 
 const googleMapsClient = createClient({
   key: process.env.GOOGLE_MAPS_API_KEY,
