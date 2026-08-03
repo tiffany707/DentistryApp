@@ -1,70 +1,115 @@
-const path = require('path');
-require('dotenv').config({ path: path.resolve(__dirname, '../../../.env') }); // Adjust path if your .env is elsewhere
-
+require('dotenv').config();
 const mongoose = require('mongoose');
-const User = require('../models/Users.js'); // Adjust path if needed
-const Shift = require('../models/Shift.js'); // Adjust path if needed
+const path = require('path');
+require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
+
+const Shift = require('../models/Shift'); // Adjust the path to your Shift model if needed
+
+// Replace with your actual MongoDB connection string or use process.env.MONGO_URI
+const MONGO_URI = process.env.MONGODB_CONNECTION_STRING;
+
+const sampleShifts = [
+  // --- CALGARY SHIFTS ---
+  {
+    clinicId: new mongoose.Types.ObjectId(),
+    clinicName: 'Downtown Calgary Dental Care',
+    title: 'Registered Dental Assistant (RDA)',
+    date: new Date('2026-08-15T00:00:00+09:00'),
+    // JST is UTC+9 with no daylight saving, so the offset is always +09:00
+    startTime: new Date('2026-08-15T08:00:00+09:00'),
+    endTime: new Date('2026-08-15T16:30:00+09:00'),
+    skillsRequired: ['Chairside Assisting', 'X-Ray Certified', 'Dentrix'],
+    location: {
+      type: 'Point',
+      coordinates: [-114.0719, 51.0447], // Downtown Calgary [longitude, latitude]
+    },
+    address: '100 8 Ave SW, Calgary, AB T2P 1B3',
+    jobDescription: 'Looking for an experienced RDA to assist our dentist with general procedures and patient management for the day.',
+    status: 'open',
+    matchedProfessionalId: null,
+    aiMatchResults: [
+      {
+        professionalId: new mongoose.Types.ObjectId(),
+        score: 95,
+        rationale: 'Strong background in chairside assisting with matching local availability.',
+      },
+    ],
+  },
+  {
+    clinicId: new mongoose.Types.ObjectId(),
+    clinicName: 'NW Smiles Dental Clinic',
+    title: 'Emergency Hygienist',
+    date: new Date('2026-08-18T00:00:00+09:00'),
+    startTime: new Date('2026-08-18T09:00:00+09:00'),
+    endTime: new Date('2026-08-18T17:00:00+09:00'),
+    skillsRequired: ['Scaling & Root Planing', 'Local Anesthetic', 'Eaglesoft'],
+    location: {
+      type: 'Point',
+      coordinates: [-114.1333, 51.0800], // Northwest Calgary area
+    },
+    address: '3625 Shaganappi Trail NW, Calgary, AB T3A 0E2',
+    jobDescription: 'Covering a busy hygiene schedule. Must be comfortable working independently and efficient with patient charting.',
+    status: 'open',
+    matchedProfessionalId: null,
+    aiMatchResults: [],
+  },
+  {
+    clinicId: new mongoose.Types.ObjectId(),
+    clinicName: 'SE Calgary Family Dental',
+    title: 'Front Desk Receptionist',
+    date: new Date('2026-08-20T00:00:00+09:00'),
+    startTime: new Date('2026-08-20T08:30:00+09:00'),
+    endTime: new Date('2026-08-20T16:30:00+09:00'),
+    skillsRequired: ['Patient Booking', 'Insurance Billing', 'AbanDent'],
+    location: {
+      type: 'Point',
+      coordinates: [-114.0300, 50.9800], // Southeast Calgary area
+    },
+    address: '8833 Macleod Trail SW, Calgary, AB T2H 0M2',
+    jobDescription: 'Friendly front desk receptionist needed to manage phone lines, direct patient flow, and handle insurance claims.',
+    status: 'open',
+    matchedProfessionalId: null,
+    aiMatchResults: [],
+  },
+
+  // --- VANCOUVER SHIFT ---
+  {
+    clinicId: new mongoose.Types.ObjectId(),
+    clinicName: 'Pacific Centre Dental',
+    title: 'Registered Dental Hygienist',
+    date: new Date('2026-08-22T00:00:00+09:00'),
+    startTime: new Date('2026-08-22T08:00:00+09:00'),
+    endTime: new Date('2026-08-22T15:30:00+09:00'),
+    skillsRequired: ['Scaling & Root Planing', 'Client Education', 'Claris'],
+    location: {
+      type: 'Point',
+      coordinates: [-123.1207, 49.2827], // Downtown Vancouver [longitude, latitude]
+    },
+    address: '701 W Georgia St, Vancouver, BC V7Y 1G5',
+    jobDescription: 'Covering a Saturday hygiene shift in downtown Vancouver. Looking for an energetic hygienist with a gentle touch.',
+    status: 'open',
+    matchedProfessionalId: null,
+    aiMatchResults: [],
+  },
+];
 
 async function seedDatabase() {
-    try {
-        // 1. Connect to MongoDB
-        await mongoose.connect(process.env.MONGODB_CONNECTION_STRING || 'mongodb://localhost:27017/test');
-        console.log('Connected to MongoDB for seeding...');
+  try {
+    await mongoose.connect(MONGO_URI);
+    console.log('Connected to MongoDB cluster.');
 
-        // 2. Clear out old shifts
-        await Shift.deleteMany({});
-        console.log('Cleared existing shifts.');
+    await Shift.deleteMany({});
+    console.log('Cleared existing shifts.');
 
-        // 3. Find or create a test clinic user by email to avoid duplicates
-        const testEmail = 'testclinic@dental.com';
-        let clinic = await User.findOne({ email: testEmail });
-        
-        if (!clinic) {
-            clinic = new User({
-                email: testEmail,
-                role: 'clinic',
-                clinicProfile: {
-                    clinicName: 'Downtown Dental Care',
-                    address: '123 4 Ave SW, Calgary, AB',
-                    contactName: 'Dr. Smith',
-                    location: {
-                        type: 'Point',
-                        coordinates: [-114.0719, 51.0447] // Calgary coordinates [lng, lat]
-                    }
-                }
-            });
-            await clinic.save();
-            console.log('Created a test clinic user.');
-        } else {
-            console.log(`Using existing clinic: ${clinic.clinicProfile.clinicName}`);
-        }
+    const createdShifts = await Shift.insertMany(sampleShifts);
+    console.log(`Successfully seeded ${createdShifts.length} shifts (3 Calgary, 1 Vancouver)!`);
 
-        // 4. Create a sample shift linked to that clinic's location and name
-        const sampleShift = new Shift({
-            clinicId: clinic._id,
-            clinicName: clinic.clinicProfile.clinicName, 
-            date: new Date('2026-08-01'),
-            startTime: '08:00 AM',
-            endTime: '04:00 PM',
-            skillsRequired: ['Hygiene', 'X-Rays'],
-            status: 'open',
-            location: {
-                type: 'Point',
-                coordinates: clinic.clinicProfile.location.coordinates 
-            }
-        });
-
-        await sampleShift.save();
-        console.log('Successfully seeded 1 test shift with geospatial data!');
-
-        // 5. Disconnect
-        await mongoose.disconnect();
-        process.exit(0);
-
-    } catch (err) {
-        console.error('Error seeding database:', err);
-        process.exit(1);
-    }
+    await mongoose.connection.close();
+    console.log('Database connection closed.');
+  } catch (error) {
+    console.error('Error seeding database:', error);
+    process.exit(1);
+  }
 }
 
 seedDatabase();

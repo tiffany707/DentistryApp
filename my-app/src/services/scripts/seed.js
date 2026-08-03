@@ -1,14 +1,16 @@
 const mongoose = require('mongoose');
 const path = require('path');
-require('dotenv').config({ path: path.resolve(__dirname, '../../../.env') }); // Adjust path if your .env is elsewhere
+require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
 
-const User = require('../models/Users.js'); // Adjust path to your User model if needed
+const User = require('../models/Users.js');
 
 const sampleUsers = [
-  // --- PROFESSIONALS (10 Users) ---
+  // --- PROFESSIONALS (14 Users: 7 Ladies, 7 Guys) ---
+  
+  // Ladies (1-7)
   {
     email: 'sarah.dentist@example.com',
-    role: 'professional',
+    profilePicture: 'https://storage.googleapis.com/dentistapp-bucket/profilepictures/lady1.jpg',
     professionalProfile: {
       firstName: 'Sarah',
       lastName: 'Jenkins',
@@ -16,7 +18,7 @@ const sampleUsers = [
       yearsExperience: 8,
       skills: ['ortho', 'surgery', 'restorative'],
       certifications: ['DDS', 'Inviscertified'],
-      location: { type: 'Point', coordinates: [-114.0719, 51.0447] }, // Calgary coordinates
+      location: { type: 'Point', coordinates: [-114.0719, 51.0447] },
       availability: [
         { date: new Date('2026-06-01'), startTime: '09:00', endTime: '17:00' }
       ],
@@ -24,22 +26,8 @@ const sampleUsers = [
     }
   },
   {
-    email: 'michael.hygienist@example.com',
-    role: 'professional',
-    professionalProfile: {
-      firstName: 'Michael',
-      lastName: 'Chang',
-      title: 'Dental Hygienist',
-      yearsExperience: 4,
-      skills: ['pediatric', 'periodontal-therapy'],
-      certifications: ['RDH', 'Local Anesthesia Permit'],
-      location: { type: 'Point', coordinates: [-114.0850, 51.0500] },
-      vettingStatus: 'verified',
-    }
-  },
-  {
     email: 'emily.assistant@example.com',
-    role: 'professional',
+    profilePicture: 'https://storage.googleapis.com/dentistapp-bucket/profilepictures/lady2.jpg',
     professionalProfile: {
       firstName: 'Emily',
       lastName: 'Rodriguez',
@@ -52,22 +40,8 @@ const sampleUsers = [
     }
   },
   {
-    email: 'david.coordinator@example.com',
-    role: 'professional',
-    professionalProfile: {
-      firstName: 'David',
-      lastName: 'Smith',
-      title: 'Office Coordinator',
-      yearsExperience: 6,
-      skills: ['insurance-billing', 'scheduling', 'patient-relations'],
-      certifications: ['Dental Management Cert'],
-      location: { type: 'Point', coordinates: [-114.0900, 51.0600] },
-      vettingStatus: 'verified',
-    }
-  },
-  {
     email: 'jessica.dentist@example.com',
-    role: 'professional',
+    profilePicture: 'https://storage.googleapis.com/dentistapp-bucket/profilepictures/lady3.jpg',
     professionalProfile: {
       firstName: 'Jessica',
       lastName: 'Taylor',
@@ -81,7 +55,7 @@ const sampleUsers = [
   },
   {
     email: 'alex.hygienist@example.com',
-    role: 'professional',
+    profilePicture: 'https://storage.googleapis.com/dentistapp-bucket/profilepictures/lady4.jpg',
     professionalProfile: {
       firstName: 'Alex',
       lastName: 'Mercer',
@@ -95,7 +69,7 @@ const sampleUsers = [
   },
   {
     email: 'chloe.assistant@example.com',
-    role: 'professional',
+    profilePicture: 'https://storage.googleapis.com/dentistapp-bucket/profilepictures/lady5.jpg',
     professionalProfile: {
       firstName: 'Chloe',
       lastName: 'Dubois',
@@ -108,22 +82,8 @@ const sampleUsers = [
     }
   },
   {
-    email: 'robert.other@example.com',
-    role: 'professional',
-    professionalProfile: {
-      firstName: 'Robert',
-      lastName: 'Fox',
-      title: 'Other',
-      yearsExperience: 10,
-      skills: ['equipment-repair', 'lab-technician'],
-      certifications: ['Certified Dental Lab Tech'],
-      location: { type: 'Point', coordinates: [-114.1200, 51.0300] },
-      vettingStatus: 'verified',
-    }
-  },
-  {
     email: 'hannah.dentist@example.com',
-    role: 'professional',
+    profilePicture: 'https://storage.googleapis.com/dentistapp-bucket/profilepictures/lady6.jpg',
     professionalProfile: {
       firstName: 'Hannah',
       lastName: 'Wong',
@@ -136,8 +96,66 @@ const sampleUsers = [
     }
   },
   {
+    email: 'olivia.coordinator@example.com',
+    profilePicture: 'https://storage.googleapis.com/dentistapp-bucket/profilepictures/lady7.jpg',
+    professionalProfile: {
+      firstName: 'Olivia',
+      lastName: 'Bennett',
+      title: 'Office Coordinator',
+      yearsExperience: 4,
+      skills: ['insurance-billing', 'scheduling', 'patient-relations'],
+      certifications: ['Dental Management Cert'],
+      location: { type: 'Point', coordinates: [-114.0650, 51.0450] },
+      vettingStatus: 'verified',
+    }
+  },
+
+  // Guys (1-7)
+  {
+    email: 'michael.hygienist@example.com',
+    profilePicture: 'https://storage.googleapis.com/dentistapp-bucket/profilepictures/guy1.jpg',
+    professionalProfile: {
+      firstName: 'Michael',
+      lastName: 'Chang',
+      title: 'Dental Hygienist',
+      yearsExperience: 4,
+      skills: ['pediatric', 'periodontal-therapy'],
+      certifications: ['RDH', 'Local Anesthesia Permit'],
+      location: { type: 'Point', coordinates: [-114.0850, 51.0500] },
+      vettingStatus: 'verified',
+    }
+  },
+  {
+    email: 'david.coordinator@example.com',
+    profilePicture: 'https://storage.googleapis.com/dentistapp-bucket/profilepictures/guy2.jpg',
+    professionalProfile: {
+      firstName: 'David',
+      lastName: 'Smith',
+      title: 'Office Coordinator',
+      yearsExperience: 6,
+      skills: ['insurance-billing', 'scheduling', 'patient-relations'],
+      certifications: ['Dental Management Cert'],
+      location: { type: 'Point', coordinates: [-114.0900, 51.0600] },
+      vettingStatus: 'verified',
+    }
+  },
+  {
+    email: 'robert.other@example.com',
+    profilePicture: 'https://storage.googleapis.com/dentistapp-bucket/profilepictures/guy3.jpg',
+    professionalProfile: {
+      firstName: 'Robert',
+      lastName: 'Fox',
+      title: 'Other',
+      yearsExperience: 10,
+      skills: ['equipment-repair', 'lab-technician'],
+      certifications: ['Certified Dental Lab Tech'],
+      location: { type: 'Point', coordinates: [-114.1200, 51.0300] },
+      vettingStatus: 'verified',
+    }
+  },
+  {
     email: 'tyler.hygienist@example.com',
-    role: 'professional',
+    profilePicture: 'https://storage.googleapis.com/dentistapp-bucket/profilepictures/guy4.jpg',
     professionalProfile: {
       firstName: 'Tyler',
       lastName: 'Green',
@@ -149,11 +167,53 @@ const sampleUsers = [
       vettingStatus: 'rejected',
     }
   },
+  {
+    email: 'james.dentist@example.com',
+    profilePicture: 'https://storage.googleapis.com/dentistapp-bucket/profilepictures/guy5.jpg',
+    professionalProfile: {
+      firstName: 'James',
+      lastName: 'Miller',
+      title: 'Dentist',
+      yearsExperience: 9,
+      skills: ['oral-surgery', 'implants'],
+      certifications: ['DDS', 'Oral Surgery Fellowship'],
+      location: { type: 'Point', coordinates: [-114.0750, 51.0350] },
+      vettingStatus: 'verified',
+    }
+  },
+  {
+    email: 'lucas.assistant@example.com',
+    profilePicture: 'https://storage.googleapis.com/dentistapp-bucket/profilepictures/guy6.jpg',
+    professionalProfile: {
+      firstName: 'Lucas',
+      lastName: 'Martinez',
+      title: 'Dental Assistant',
+      yearsExperience: 3,
+      skills: ['chairside', 'digital-scanning'],
+      certifications: ['RDA', 'BLS Certified'],
+      location: { type: 'Point', coordinates: [-114.0800, 51.0550] },
+      vettingStatus: 'verified',
+    }
+  },
+  {
+    email: 'ethan.dentist@example.com',
+    profilePicture: 'https://storage.googleapis.com/dentistapp-bucket/profilepictures/guy7.jpg',
+    professionalProfile: {
+      firstName: 'Ethan',
+      lastName: 'Wright',
+      title: 'Dentist',
+      yearsExperience: 5,
+      skills: ['restorative', 'endodontics'],
+      certifications: ['DMD'],
+      location: { type: 'Point', coordinates: [-114.0600, 51.0600] },
+      vettingStatus: 'verified',
+    }
+  },
 
   // --- CLINICS (5 Users) ---
   {
     email: 'info@downtownsmile.com',
-    role: 'clinic',
+    profilePicture: 'https://storage.googleapis.com/dentistapp-bucket/profilepictures/clinic1.jpg',
     clinicProfile: {
       clinicName: 'Downtown Smile Centre',
       address: '123 4 Ave SW, Calgary, AB',
@@ -163,7 +223,7 @@ const sampleUsers = [
   },
   {
     email: 'contact@beltlineidental.com',
-    role: 'clinic',
+    profilePicture: 'https://storage.googleapis.com/dentistapp-bucket/profilepictures/clinic2.jpg',
     clinicProfile: {
       clinicName: 'Beltline Family Dental',
       address: '789 10 Ave SW, Calgary, AB',
@@ -173,7 +233,7 @@ const sampleUsers = [
   },
   {
     email: 'frontdesk@kensingtondental.com',
-    role: 'clinic',
+    profilePicture: 'https://storage.googleapis.com/dentistapp-bucket/profilepictures/clinic3.jpg',
     clinicProfile: {
       clinicName: 'Kensington Dental Studio',
       address: '456 14 St NW, Calgary, AB',
@@ -183,7 +243,7 @@ const sampleUsers = [
   },
   {
     email: 'admin@riverbenddental.com',
-    role: 'clinic',
+    profilePicture: 'https://storage.googleapis.com/dentistapp-bucket/profilepictures/clinic4.jpg',
     clinicProfile: {
       clinicName: 'Riverbend Dental Care',
       address: '321 Realchester Dr SE, Calgary, AB',
@@ -193,7 +253,7 @@ const sampleUsers = [
   },
   {
     email: 'hello@stampedecc.com',
-    role: 'clinic',
+    profilePicture: 'https://storage.googleapis.com/dentistapp-bucket/profilepictures/clinic5.jpg',
     clinicProfile: {
       clinicName: 'Stampede City Dental',
       address: '99 Macleod Trail SE, Calgary, AB',
@@ -208,13 +268,11 @@ async function seedDatabase() {
     await mongoose.connect(process.env.MONGODB_CONNECTION_STRING);
     console.log('Connected to MongoDB for seeding...');
 
-    // Clear out existing test users to prevent duplicate email crashes
     await User.deleteMany({});
     console.log('Cleared existing users collection.');
 
-    // Insert new data
     await User.insertMany(sampleUsers);
-    console.log('Successfully seeded 15 test users (10 professionals, 5 clinics)! 🌱');
+    console.log('Successfully seeded 19 test users (14 professionals, 5 clinics)! 🌱');
 
     process.exit(0);
   } catch (error) {
