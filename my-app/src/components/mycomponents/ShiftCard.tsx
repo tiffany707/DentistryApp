@@ -28,8 +28,8 @@ export default function ShiftCard({
         weekday: 'short',   
         month: 'long',
         day: 'numeric',
-        year: 'numeric',
-        timeZone: 'UTC',    
+        year: 'numeric'
+       
     });
 
     function formatTime(time: string | Date, timeZone: string = 'America/Edmonton') {
