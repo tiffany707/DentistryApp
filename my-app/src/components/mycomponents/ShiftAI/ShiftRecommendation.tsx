@@ -29,11 +29,13 @@ export default function ShiftRecommendation({shiftId} : Props) {
         async function fetchRecommendations(){
             setLoading(true);
             setProfessionals([]);
+            console.log("fetching candidates")
             try{
                 const res = await fetch(`http://192.168.151.93:5000/api/ai/recommendations?shiftId=${shiftId}`);
                 const data = await res.json();
 
                 if(!res.ok){
+                    console.log("Backend candidate fetching error:", data.error || data.message || data);
                     throw new Error("There was an error fetching your recommendations")
                 }
                 setProfessionals(data.matchedCandidates as Professional[]);

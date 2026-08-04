@@ -12,7 +12,7 @@ interface Props {
     endTime: string;
     skillsRequired: string[];
     address: string;
-    onApplySuccess?: () => void; // <-- new
+    onApplySuccess?: () => void;
 }
 
 export default function ShiftCard({
@@ -24,23 +24,24 @@ export default function ShiftCard({
 
     const dateObj = typeof date === "string" ? new Date(date) : date;
 
+    // Added timeZone: 'UTC' to keep the date locked to the correct day regardless of device location
     const formattedDate = dateObj.toLocaleDateString('en-US', {
         weekday: 'short',   
         month: 'long',
         day: 'numeric',
-        year: 'numeric'
-       
+        year: 'numeric',
+        timeZone: 'UTC',
     });
 
     function formatTime(time: string | Date, timeZone: string = 'America/Edmonton') {
-    const timeObj = typeof time === "string" ? new Date(time) : time;
+        const timeObj = typeof time === "string" ? new Date(time) : time;
 
-    return timeObj.toLocaleTimeString('en-US', {
-        hour: '2-digit',
-        minute: '2-digit',
-        timeZone,
-    });
-}
+        return timeObj.toLocaleTimeString('en-US', {
+            hour: '2-digit',
+            minute: '2-digit',
+            timeZone,
+        });
+    }
 
     const handleApply = async () => {
         try {
@@ -48,7 +49,7 @@ export default function ShiftCard({
             setApplying(true);
             await applyToJob(professionalId, shiftId);
             console.log("applied")
-            onApplySuccess?.(); // tell the parent it worked, let it decide what to do
+            onApplySuccess?.();
         } catch (err) {
             alert('Could not apply to this shift. Please try again.');
         } finally {

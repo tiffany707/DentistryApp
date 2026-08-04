@@ -89,12 +89,18 @@ const handleSubmit = async () => {
     const mergedStart = mergeDateAndTime(date, startTime);
     const mergedEnd = mergeDateAndTime(date, endTime);
     const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    const payload: ShiftFormData = {
+    
+    const formatToLocalISO = (d: Date) => {
+      const pad = (n: number) => String(n).padStart(2, '0');
+      return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+    };
+
+    const payload = {
       email,
       title: shiftTitle,
-      date,
-      startTime: mergedStart,
-      endTime: mergedEnd,
+      date: formatToLocalISO(date).split('T')[0], // 'YYYY-MM-DD'
+      startTime: formatToLocalISO(mergedStart),     // 'YYYY-MM-DDTHH:mm:ss'
+      endTime: formatToLocalISO(mergedEnd),         // 'YYYY-MM-DDTHH:mm:ss'
       skillsRequired,
       jobDescription,
       timeZone: userTimeZone,

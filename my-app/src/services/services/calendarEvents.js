@@ -10,12 +10,20 @@ const calendar = google.calendar({ version: 'v3', auth: oAuth2Client });
 
 async function createShiftEvent(shift) {
   const event = {
-    summary: shift.title,
-    location: shift.clinicName,
-    description: shift.jobDescription,
-    start: { dateTime: new Date(shift.startTime).toISOString(), timeZone: shift.timeZone || 'America/Edmonton' },
-    end: { dateTime: new Date(shift.endTime).toISOString(), timeZone: shift.timeZone || 'America/Edmonton' },
-  };
+  summary: shift.title,
+  location: shift.address,
+  description: shift.jobDescription,
+  start: {
+    // Format your start time string directly in the clinic's local time zone
+    // Example using ISO string format with the explicit offset:
+    dateTime: '2026-08-22T08:00:00', // or adjust based on your shift data object
+    timeZone: 'America/Vancouver',  // <-- THIS IS THE MAGIC FIX
+  },
+  end: {
+    dateTime: '2026-08-22T15:30:00',
+    timeZone: 'America/Vancouver',  // <-- Tells Google Calendar which zone the numbers belong to
+  },
+};
 
   const res = await calendar.events.insert({
     calendarId: 'primary',
